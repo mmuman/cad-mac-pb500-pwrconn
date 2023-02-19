@@ -27,17 +27,6 @@ debug = true;
 $fa=6;
 $fs=0.1;
 
-// abandoned: it's too larged to fit 4 of them.
-module dupont_1x1_f(wire=0, margin = 0, c=0) {
-    dupont_height = 15;
-    color(c?"black":0)
-        translate([0,0,dupont_height/2])
-            cube([2.54+margin,2.54+margin,dupont_height], center=true);
-    color(c) {
-        translate([0,0,.1]) rotate([180,0,0]) cylinder(d = 1.5+margin, h = wire);
-    }
-}
-
 module dsub_contact_f(wire=0, margin = 0, c=0, cavity=false) {
     color(c?"gold":0) {
         translate([0,0,contact_height/2])

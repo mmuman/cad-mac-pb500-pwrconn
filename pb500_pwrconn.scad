@@ -73,18 +73,22 @@ module pb500_pwr_conn_inner(preview=true) {
             translate([0,0,height-0.3]) cylinder(d1 = diam, d2 = diam - 0.6, h = 0.3);
         }
         for (pin = [0:3])
-            translate([(pin%2)?((pin>1?1:-1)*sqrt(pitch^2/2)):0,(pin%2==0)?((pin>1?1:-1)*sqrt(pitch^2/2)):0,height - contact_height + 0.2]) {
+            translate([(abs(pin-1.5)>1?-1:1)*pitch/2,(pin<2?1:-1)*pitch/2,height - contact_height + 0.2]) {
                 dsub_contact_f(wire=20, margin=0.2);
                 translate([0,0,contact_height-0.6]) cylinder(d1=0.8, d2=1.4, h=0.5);
         }
-        
-        translate([diam/6,-diam/6-2.5,height - 10 + 0.01])
-            cube([2.5,2.5,10]);
-        if (debug && $preview) cube(21);
+        // Keying
+        translate([0,-0.7*diam,height - 6])
+            rotate([0,0,45]) {
+                linear_extrude(height=6.1) square([2.5,2.5]);
+                translate([0,0,5.7]) linear_extrude(height=0.4, scale=1.2) square([2.5,2.5]);
+            }
+        //cube([2.5,2.5,10]);
+        if (debug && $preview) rotate([0,0,-45]) cube(21);
     }
     if (preview) {
         for (pin = [0:3])
-            translate([(pin%2)?((pin>1?1:-1)*sqrt(pitch^2/2)):0,(pin%2==0)?((pin>1?1:-1)*sqrt(pitch^2/2)):0,height - contact_height + 0.2])
+            translate([(abs(pin-1.5)>1?-1:1)*pitch/2,(pin<2?1:-1)*pitch/2,height - contact_height + 0.2])
                 dsub_contact_f(wire=20, c=wire_colors[pin]);
     }
 }

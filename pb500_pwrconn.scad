@@ -29,28 +29,31 @@ $fs=0.1;
 
 module dsub_contact_f(wire=0, margin = 0, c=0, cavity=false) {
     color(c?"gold":0) {
-        translate([0,0,contact_height/2])
+        // Simplified contact but that's way enough for our need
+        translate([0,0,contact_height-5.5])
             difference() {
                 union() {
                     cylinder(d=1.5+margin, h=5.0);
                     translate([0,0,4.99]) cylinder(d1=1.5+margin, d2=1+margin, h=0.5+margin/2);
+                    // Cutout for the male pin
                     if (margin) translate([0,0,0.1]) cylinder(d=0.7+margin, h=10);
                 }
                 if (!margin) {
                     translate([0,0,0.1]) cylinder(d=0.7, h=10);
-                    translate([0,0,4]) cube([2,0.3,6], center=true);
+                    translate([0,0,1]) cube([2,0.3,9], center=true);
                     translate([0,0,5.3]) cylinder(d1=0.6, d2=1.1, h=0.3);
                 }
             }
-        translate([0,0,contact_height/2-1])
-            cylinder(d1=2+margin,d2=1.5+margin, h=1);
-        translate([0,0,contact_height/2-5]) {
-            translate([0,0,2.3]) cylinder(d1=2+margin,d2=1.5+margin, h=0.3);
-            translate([0,0,.3]) cylinder(d=2+margin, h=2);
-            cylinder(d1=1+margin,d2=2+margin, h=0.3);
-        }
+        translate([0,0,contact_height-5.5-2.2])
+            cylinder(d1=2+margin,d2=1.5+margin, h=2.21);
+        translate([0,0,contact_height-9.4+1.75-0.3])
+            cylinder(d1=2.1+margin,d2=2+margin, h=0.31);
+        translate([0,0,contact_height-9.4+0.3])
+            cylinder(d=2.1+margin, h=1.75-0.6);
+        translate([0,0,contact_height-9.4])
+            cylinder(d1=2+margin,d2=2.1+margin, h=0.31);
+
         
-            //cube([2.54+margin,2.54+margin,contact_height], center=true);
     }
     // the wire
     color(c?"silver":0)
@@ -76,17 +79,18 @@ module pb500_pwr_conn_inner(preview=true) {
             translate([0,0,height-0.3]) cylinder(d1 = diam, d2 = diam - 0.6, h = 0.3);
             // Pin number labels; probably too small to FDM print
             for (pin = [0:3])
-                translate(pin_xy(pin,0.8*pitch,0.25*pitch,height - 0.1))
-                    linear_extrude(0.3)
-                        text(str(pin+1), font = "DejaVu Sans", size=0.8, halign="center", valign="center");
+                translate(pin_xy(pin,0.85*pitch,0.25*pitch,height - 0.1))
+                    linear_extrude(0.35)
+                        text(str(pin+1), font = "DejaVu Sans", size=0.9, halign="center", valign="center");
         }
-        for (pin = [0:3])
-            translate(pin_xy(pin,pitch/2,pitch/2,height - contact_height + 0.2)) {
-                dsub_contact_f(wire=20, margin=0.2);
+        for (pin = [0:3]) {
+            translate(pin_xy(pin,pitch/2,pitch/2,height - contact_height - 1))
+                dsub_contact_f(wire=20, margin=0.1);
+            translate(pin_xy(pin,pitch/2,pitch/2,height - contact_height + 0.2))
                 translate([0,0,contact_height-0.6]) cylinder(d1=0.8, d2=1.4, h=0.5);
         }
         // Keying
-        translate([0,-0.75*diam,height - 6])
+        translate([0,-0.8*diam,height - 6])
             rotate([0,0,45]) {
                 linear_extrude(height=6.1) square([2.5,2.5]);
                 translate([0,0,5.7]) linear_extrude(height=0.4, scale=1.2) square([2.5,2.5]);
@@ -95,7 +99,7 @@ module pb500_pwr_conn_inner(preview=true) {
     }
     if (preview) {
         for (pin = [0:3])
-            translate(pin_xy(pin,pitch/2,pitch/2,height - contact_height + 0.2))
+            translate(pin_xy(pin,pitch/2,pitch/2,height - contact_height - 1))
                 dsub_contact_f(wire=20, c=wire_colors[pin]);
     }
 }

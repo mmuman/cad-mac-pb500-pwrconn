@@ -189,14 +189,33 @@ module pb500_pwr_conn_shell(preview=true) {
                     translate([0,0,2-20.7]) {
                         difference() {
                             minkowski() {
-                                intersection() {
-                                    translate([0,-8,0]) cylinder(d=29-m_r, h=20.7);
-                                    union() {
-                                        cylinder(d=14-m_r, h=20.7);
-                                        translate([0,5,20.7/2]) cube([14-m_r,10,20.7],center=true);
+                                union() {
+                                    intersection() {
+                                        translate([0,-8,0]) cylinder(d=29-m_r, h=20.7);
+                                        union() {
+                                            cylinder(d=14-m_r, h=20.7);
+                                            translate([0,5,20.7/2]) cube([14-m_r,10,20.7],center=true);
+                                        }
+                                    }
+                                    // Cable clip
+                                    translate([0,-10,10]) intersection() {
+                                        translate([0,-1,0]) cylinder(d=8.1, h=10, center=true);
+                                        translate([0,1,0]) rotate([0,90,0]) cylinder(d=11, h=10, center=true);
+                                    }
+                                    translate([0,-10,10]) intersection() {
+                                        difference() {
+                                            translate([0,3.5,0]) cube([8,8,16], center=true);
+                                            for (sz=[-1,1])
+                                                translate([0,0,sz*10]) rotate([0,90,0]) cylinder(d=10,h=10, center=true);
+                                        }
                                     }
                                 }
                                 sphere(0.3);
+                            }
+                            // Cable clip
+                            translate([0,-10,10]) {
+                                translate([0,-1,0]) cylinder(d=4.5, h=12, center=true);
+                                translate([0,-7,0]) rotate([0,0,45]) cube([8,8,10], center=true);
                             }
                             // DC symbol
                             translate([0,7,12]) cube([8,2,0.5], center=true);

@@ -47,14 +47,14 @@ module dsub_contact_f(wire=0, margin = 0, c=0, cavity=false) {
             difference() {
                 union() {
                     cylinder(d=1.6+margin, h=5.3);
-                    translate([0,0,4.99+0.3]) cylinder(d1=1.6+margin, d2=1+margin, h=0.2+margin/2);
+                    translate([0,0,4.99+0.3]) cylinder(d1=1.6+margin, d2=1.1+margin, h=0.2+margin/2);
                     // Cutout for the male pin
                     if (margin) translate([0,0,0.1]) cylinder(d=1.0+margin, h=10);
                 }
                 if (!margin) {
                     translate([0,0,0.1]) cylinder(d=0.7, h=10);
                     translate([0,0,1]) cube([2,0.3,9], center=true);
-                    translate([0,0,5.3]) cylinder(d1=0.6, d2=1.1, h=0.3);
+                    translate([0,0,5.3]) cylinder(d1=0.6, d2=1.3, h=0.3);
                 }
             }
         translate([0,0,contact_height-5.5-2.2])
@@ -151,7 +151,7 @@ module pb500_pwr_conn_inner(preview=true) {
             translate(pin_xy(pin,pitch/2,pitch/2,height - contact_height - contact_z_offset))
                 dsub_contact_f(wire=20, margin=contact_margin);
             translate(pin_xy(pin,pitch/2,pitch/2,height - contact_height + 0.1))
-                translate([0,0,contact_height-0.6]) cylinder(d1=1.1+contact_margin, d2=1.6, h=0.5);
+                translate([0,0,contact_height-0.6]) cylinder(d1=1.0+contact_margin, d2=1.8, h=0.6);
         }
 
         // Keying

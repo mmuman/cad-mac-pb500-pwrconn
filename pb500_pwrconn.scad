@@ -10,6 +10,9 @@ print_inner = true;
 // Print the connector shell
 print_shell = true;
 
+// The type of shield we'll be using
+shield_type = 1; // [0: Original - anyone seen one?, 1: Cheap RCA plug]
+
 /* [Model parameters] */
 
 filament_lock = false;
@@ -176,17 +179,52 @@ module pb500_pwr_conn_inner(preview=true) {
     }
 }
 
-module pb500_pwr_conn_shield(preview=true) {
+// The real one, at least what I measured of it
+module pb500_pwr_conn_shield_official(preview=true) {
+    thickness = 0.4;
     color("Silver", 0.5) {
         translate([0,0,pb500_pwr_conn_height-10]) {
             difference() {
                 cylinder(d=10.1, h=10-1.2);
-                translate([0,0,-0.1]) cylinder(d=10.1-2*0.4, h=11);
+                translate([0,0,-0.1]) cylinder(d=10.1-2*thickness, h=11);
                 translate([0,-5,5]) cube([1.2,5,12], center=true);
             }
         }
     }
 }
+
+// A replacement shield stolen from the cheap RCA plugs
+module pb500_pwr_conn_shield_rca(preview=true) {
+    thickness = 0.2;
+    color("Silver", 0.5) union() {
+        translate([0,0,pb500_pwr_conn_height-7.8-1.2]) {
+            difference() {
+                cylinder(d=10.1, h=7.8);
+                translate([0,0,-0.1]) cylinder(d=10.1-2*thickness, h=8);
+                translate([0,-5,5]) cube([3.5,5,12], center=true);
+            }
+        }
+        translate([0,4.8,pb500_pwr_conn_height-7.8-1.2-7.8]) {
+            difference() {
+                translate([0,0,2.7/2]) cube([2.7,thickness,16-2.7+0.1], center=true);
+                translate([0,0,-8+6.4]) rotate([-90,0,0]) cylinder(d = 1, h = 1, center=true);
+            }
+            translate([0,0,-8+2.7/2]) cube([5,thickness,2.7], center=true);
+            for (sx=[-1,1]) {
+                translate([sx*5/2,-2.4,-8+2.7/2]) difference() {
+                    cube([thickness,5,2.7], center=true);
+                    translate([0,-3]) rotate([sx*-60,0,0]) cube([2,6,2], center=true);
+                }
+            }
+        }
+    }
+}
+
+module pb500_pwr_conn_shield(preview=true) {
+    //pb500_pwr_conn_shield_official(preview);
+    pb500_pwr_conn_shield_rca(preview);
+}
+
 module pb500_pwr_conn_shell(preview=true) {
     // Cable
     if ($preview) color("LightSlateGray", 0.9) {
@@ -266,7 +304,7 @@ module pb500_pwr_conn_shell(preview=true) {
 }
 
 if (print_inner) pb500_pwr_conn_inner(preview?$preview:false);
-//if ($preview) pb500_pwr_conn_shield($preview);
+if ($preview) pb500_pwr_conn_shield($preview);
 if (print_shell)
     translate([$preview?0:20,0,0])
         pb500_pwr_conn_shell($preview);

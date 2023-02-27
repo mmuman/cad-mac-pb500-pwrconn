@@ -10,9 +10,6 @@ print_inner = true;
 // Print the connector shell
 print_shell = true;
 
-// The type of shield we'll be using
-shield_type = 1; // [0: Original - anyone seen one?, 1: Cheap RCA plug]
-
 /* [Model parameters] */
 
 filament_lock = false;
@@ -37,7 +34,14 @@ smooth = 0.3; // [0.0:0.1:0.5]
 
 avoid_supports = true;
 
+// The type of shield we'll be using
+shield_type = 1; // [0: Original - anyone seen one?, 1: Cheap RCA plug]
+
 /* [Hidden] */
+
+//shield_margins = [0.4, 0.2];
+//shield_margin = shield_margins[shield_type];
+
 
 // we need more faces on such a small piece
 $fa=6;
@@ -73,7 +77,7 @@ module dsub_contact_f(wire=0, margin = 0, c=0, cavity=false) {
             union() {
                 if (margin) {
                     translate([0,0,contact_height-9.4-1-margin/2])
-                        cylinder(d1=2.1+margin, d2=2-0.1, h=1.1+margin/2);
+                        cylinder(d1=2.15+margin, d2=2.05, h=1.1+margin/2);
                     translate([0,0,contact_height-9.4-0.5-margin/2])
                         cube([1.7,1.7,1.2+margin/2],center=true);
                     /* XXX: results in "Normalized tree is growing past 200000 elements."
@@ -134,27 +138,38 @@ module pb500_pwr_conn_inner(preview=true) {
         for (pin = [0:3])
             translate(pin_xy(pin,pitch/2,pitch/2,height - contact_height - contact_z_offset))
                 dsub_contact_f(wire=8, c=wire_colors[pin]);
+        // Cable
+        color("LightSlateGray", 0.9) {
+            translate([0,0,-34]) cylinder(d=4, h=29);
+            translate([0,0,-7.5]) cylinder(d1=4, d2=6, h=2.5);
+        }
         if (filament_lock)
             translate([0,0,height - 1 - 9.4 - 0.4*1.75]) rotate([0,90,0]) color("green")
                 cylinder(d=1.75, h=9.5, center=true);
     }
 
-    color("DimGray",0.8) difference() {
+    color("DimGray",0.7) difference() {
         union() {
             translate([0,0,height-0.3]) cylinder(d1 = diam - outer_margin, d2 = diam - outer_margin - 0.6, h = 0.3);
             cylinder(d = diam - outer_margin, h = height-0.3);
-            cylinder(d = 10.1-2*0.5, h = height-6.0);
+            cylinder(d1 = 9.6, d2 = 10.11, h = 0.6);
+            translate([0,0,0.6]) cylinder(d = 10.11/*-2*0.5*/, h = height-6.0-0.6);
             // Pin number labels; probably too small to FDM print
             for (pin = [0:3])
                 translate(pin_xy(pin,0.85*pitch,0.25*pitch,height - 0.1))
                     linear_extrude(0.35)
                         text(str(pin+1), font = "DejaVu Sans", size=0.9, halign="center", valign="center");
         }
+        pb500_pwr_conn_shield(false, 0.3);
         for (pin = [0:3]) {
             translate(pin_xy(pin,pitch/2,pitch/2,height - contact_height - contact_z_offset))
                 dsub_contact_f(wire=20, margin=contact_margin);
+            // Chamfer for the male pin input
             translate(pin_xy(pin,pitch/2,pitch/2,height - contact_height + 0.1))
                 translate([0,0,contact_height-0.6]) cylinder(d1=1.0+contact_margin, d2=1.8, h=0.6);
+            // Ease contact insertion
+            translate(pin_xy(pin,pitch/2+0.2,pitch/2+0.2, -0.1))
+                cylinder(d1=2.2+contact_margin, d2=1.8, h=5);
         }
 
         // Keying
@@ -169,18 +184,19 @@ module pb500_pwr_conn_inner(preview=true) {
             translate([0,0,height - 1 - 9.4 - 0.4*1.75]) rotate([0,90,0]) cylinder(d=1.75+0.1, h=20, center=true);
 
         // Arbitrary shell keying
-        translate([0,-5,6.99]) linear_extrude(height=1, scale=0.1) square([10,3], center=true);
-        translate([0,-5,4]) cube([10,3,6], center=true);
+        translate([0,-5.5,3.99]) linear_extrude(height=2, scale=0.1) square([10,4], center=true);
+        translate([0,-5,3]) cube([10,3,2], center=true);
         translate([0,-5,0]) cube([10,2,6], center=true);
 
+        translate([0,-5.3,-0.1]) linear_extrude(height=2, scale=0.1) square([10,4], center=true);
         if (debug && $preview) rotate([0,0,-45]) cube(21);
         // speed up test
-        if (debug) cube([20,20,9], center=true);
+        //if (debug) cube([20,20,9], center=true);
     }
 }
 
 // The real one, at least what I measured of it
-module pb500_pwr_conn_shield_official(preview=true) {
+module pb500_pwr_conn_shield_official(preview=true, margin=0) {
     thickness = 0.4;
     color("Silver", 0.5) {
         translate([0,0,pb500_pwr_conn_height-10]) {
@@ -194,19 +210,19 @@ module pb500_pwr_conn_shield_official(preview=true) {
 }
 
 // A replacement shield stolen from the cheap RCA plugs
-module pb500_pwr_conn_shield_rca(preview=true) {
+module pb500_pwr_conn_shield_rca(preview=true, margin=0) {
     thickness = 0.2;
-    color("Silver", 0.5) union() {
+    /*color(preview ? "Silver" : 0)*/ union() {
         translate([0,0,pb500_pwr_conn_height-7.8-1.2]) {
             difference() {
-                cylinder(d=10.1, h=7.8);
-                translate([0,0,-0.1]) cylinder(d=10.1-2*thickness, h=8);
+                cylinder(d=10.1+2*margin, h=7.8);
+                translate([0,0,-0.1]) cylinder(d=10.1-2*thickness-2*margin, h=8);
                 translate([0,-5,5]) cube([3.5,5,12], center=true);
             }
         }
-        translate([0,4.8,pb500_pwr_conn_height-7.8-1.2-7.8]) {
+        translate([0,4.8-0.5,pb500_pwr_conn_height-7.8-1.2-7.8]) rotate([-4,0,0]) {
             difference() {
-                translate([0,0,2.7/2]) cube([2.7,thickness,16-2.7+0.1], center=true);
+                translate([0,0,2.7/2]) cube([2.7+2*margin,thickness+4*margin,16-2.7+0.1], center=true);
                 translate([0,0,-8+6.4]) rotate([-90,0,0]) cylinder(d = 1, h = 1, center=true);
             }
             translate([0,0,-8+2.7/2]) cube([5,thickness,2.7], center=true);
@@ -220,19 +236,15 @@ module pb500_pwr_conn_shield_rca(preview=true) {
     }
 }
 
-module pb500_pwr_conn_shield(preview=true) {
-    //pb500_pwr_conn_shield_official(preview);
-    pb500_pwr_conn_shield_rca(preview);
+module pb500_pwr_conn_shield(preview=true, margin=0) {
+    if (shield_type == 0)
+        pb500_pwr_conn_shield_official(preview, margin);
+    if (shield_type == 1)
+        pb500_pwr_conn_shield_rca(preview, margin);
 }
 
 module pb500_pwr_conn_shell(preview=true) {
-    // Cable
-    if ($preview) color("LightSlateGray", 0.9) {
-        translate([0,0,-34]) cylinder(d=4, h=30);
-        translate([0,0,-12]) cylinder(d1=4, d2=6, h=8);
-    }
-
-    color("LightSlateGray", 0.8) {
+    color("LightSlateGray", 0.3) {
         translate([0,0,pb500_pwr_conn_height-1.8-5.4-10]) {
             difference() {
                 union() {
@@ -287,24 +299,26 @@ module pb500_pwr_conn_shell(preview=true) {
                 }
 
                 // XXX: depends on the shield and inner lock
-                translate([0,0,6-0.1]) cylinder(d=10.1+0.2, h=6);
+                translate([0,0,5-0.1]) cylinder(d=10.1+0.1, h=6);
 
                 difference() {
-                    translate([0,0,1-0.1]) cylinder(d=9.1+0.2, h=11);
-                    translate([0,-9.3,3.6]) rotate([20,0,0]) cube([10,10,6], center=true);
+                    translate([0,0,1-0.1]) cylinder(d=10.1+0.1, h=11);
+                    translate([0,-9.3,2.4]) rotate([45,0,0]) cube([10,10,6], center=true);
                 }
-                translate([0,0,-1]) cylinder(d=6.5, h=5);
-                translate([0,0,-5]) cylinder(d1=10.1+0.2, d2=6, h=5);
+                translate([0,0,-1]) cylinder(d=7.5, h=5);
+                translate([0,3,-1]) cube([5.5,2.6,7], center=true);
+                translate([0,3,-1]) cube([4.0,3.4,7], center=true);
+                translate([0,0,-5]) cylinder(d1=10.1+0.2, d2=7, h=5);
                 translate([0,0,-17]) cylinder(d=10.1+0.2, h=12.1);
                 translate([0,0,-20]) cylinder(d=6+0.2, h=10);
-                if (debug && $preview) translate([0,0,-20]) rotate([0,0,-90]) cube(31);
+                if (debug && $preview) translate([0,0,-20]) rotate([0,0,-90*0]) cube(31);
             }
         }
     }
 }
 
 if (print_inner) pb500_pwr_conn_inner(preview?$preview:false);
-if ($preview) pb500_pwr_conn_shield($preview);
+if ($preview) color("silver", 0.6) pb500_pwr_conn_shield($preview);
 if (print_shell)
     translate([$preview?0:20,0,0])
         pb500_pwr_conn_shell($preview);

@@ -10,6 +10,9 @@ print_inner = true;
 // Print the connector shell
 print_shell = true;
 
+// Print the connector shell on the top side rather than over the cable end
+rotate_shell = true;
+
 /* [Model parameters] */
 
 filament_lock = false;
@@ -32,7 +35,11 @@ preview = true;
 // Radius on the shell body
 smooth = 0.3; // [0.0:0.1:0.5]
 
+// TODO: rename avoid_supports_z
 avoid_supports = true;
+
+// TODO: IMPLEMENT
+avoid_supports_y = false;
 
 // The type of shield we'll be using
 shield_type = 1; // [0: Original - anyone seen one?, 1: Cheap RCA plug]
@@ -272,12 +279,12 @@ module pb500_pwr_conn_shell(preview=true) {
                                     }
                                     translate([0,-10,10]) intersection() {
                                         difference() {
-                                            translate([0,3.5,0]) cube([8,avoid_supports?10:8,16], center=true);
+                                            translate([0,3.5,avoid_supports?-0.6:0]) cube([8,avoid_supports?10.4:8,avoid_supports?17.8:16], center=true);
                                             for (sz=[-1,1]) {
                                                 if (avoid_supports) {
-                                                    translate([0,-1,sz*11.2]) rotate([sz*25,0,0]) cube(11, center=true);
+                                                    translate([0,-1,sz*12.3]) rotate([sz*40,0,0]) cube(11, center=true);
                                                 } else {
-                                                    translate([0,0,sz*10]) rotate([0,90,0]) cylinder(d=10,h=10, center=true);
+                                                    translate([0,0,sz*10.3]) rotate([0,90,0]) cylinder(d=10,h=10, center=true);
                                                 }
                                             }
                                         }
@@ -320,5 +327,6 @@ module pb500_pwr_conn_shell(preview=true) {
 if (print_inner) pb500_pwr_conn_inner(preview?$preview:false);
 if ($preview) color("silver", 0.6) pb500_pwr_conn_shield($preview);
 if (print_shell)
-    translate([$preview?0:20,0,0])
-        pb500_pwr_conn_shell($preview);
+    translate($preview?[0,0,0]:[30,0,rotate_shell?6.65:20.2])
+        rotate($preview?[0,0,0]:[rotate_shell?-90:0,0,rotate_shell?-90:0])
+            pb500_pwr_conn_shell($preview);

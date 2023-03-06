@@ -7,6 +7,9 @@
 // Print the inner contact block
 print_inner = true;
 
+// Show the shield in the preview
+preview_shield = true;
+
 // Print the connector shell
 print_shell = true;
 
@@ -17,7 +20,7 @@ rotate_shell = true;
 
 filament_lock = false;
 
-contact_height = 15;
+contact_height = 15; //TODO: prefix dsub_
 pb500_pwr_conn_height = 16;
 pb500_pwr_conn_diam = 6.8;
 pb500_pwr_conn_pitch = 2.7;
@@ -320,14 +323,14 @@ module pb500_pwr_conn_shell(preview=true) {
                 translate([0,0,-5]) cylinder(d1=10.1+0.2, d2=7, h=5);
                 translate([0,0,-17]) cylinder(d=10.1+0.2, h=12.1);
                 translate([0,0,-20]) cylinder(d=6+0.2, h=10);
-                if (debug && $preview) translate([0,0,-20]) rotate([0,0,-90*0]) cube(31);
+                if (debug && $preview) translate([0,0,-20]) rotate([0,0,-90]) cube(31);
             }
         }
     }
 }
 
 if (print_inner) pb500_pwr_conn_inner(preview?$preview:false);
-if ($preview) color("silver", 0.6) pb500_pwr_conn_shield($preview);
+if (preview_shield && $preview) color("silver", 0.6) pb500_pwr_conn_shield($preview);
 if (print_shell)
     translate($preview?[0,0,0]:[30,0,rotate_shell?6.65:20.2])
         rotate($preview?[0,0,0]:[rotate_shell?-90:0,0,rotate_shell?-90:0])

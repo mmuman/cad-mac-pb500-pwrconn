@@ -25,6 +25,7 @@ pb500_pwr_conn_pitch_fixup = 0.2;
 pb500_pwr_conn_outer_margin = 0.0;
 pb500_pwr_conn_contact_margin = 0.35;
 pb500_pwr_conn_key_margin = 0.1;
+pb500_pwr_conn_shell_margin = 0.2;
 
 /* [Debug] */
 
@@ -224,7 +225,7 @@ module pb500_pwr_conn_shield_rca(preview=true, margin=0) {
             difference() {
                 cylinder(d=10.1+2*margin, h=7.8);
                 translate([0,0,-0.1]) cylinder(d=10.1-2*thickness-2*margin, h=8);
-                translate([0,-5,5]) cube([3.5,5,12], center=true);
+                translate([0,-5,5]) cube([3.5-2*margin,5,12], center=true);
             }
         }
         translate([0,4.8-0.5,pb500_pwr_conn_height-7.8-1.2-7.8]) rotate([-4,0,0]) {
@@ -251,6 +252,7 @@ module pb500_pwr_conn_shield(preview=true, margin=0) {
 }
 
 module pb500_pwr_conn_shell(preview=true) {
+    shell_margin = pb500_pwr_conn_shell_margin;
     color("LightSlateGray", 0.3) {
         translate([0,0,pb500_pwr_conn_height-1.8-5.4-10]) {
             difference() {
@@ -306,11 +308,11 @@ module pb500_pwr_conn_shell(preview=true) {
                 }
 
                 // XXX: depends on the shield and inner lock
-                translate([0,0,5-0.1]) cylinder(d=10.1+0.1, h=6);
+                translate([0,0,5-0.1]) cylinder(d=10.1+shell_margin, h=6);
 
                 difference() {
                     translate([0,0,1-0.1]) cylinder(d=10.1+0.1, h=11);
-                    translate([0,-9.3,2.4]) rotate([45,0,0]) cube([10,10,6], center=true);
+                    translate([0,-9.3-shell_margin,2.4]) rotate([45,0,0]) cube([10,10,6], center=true);
                 }
                 translate([0,0,-1]) cylinder(d=7.5, h=5);
                 translate([0,3,-1]) cube([5.5,2.6,7], center=true);

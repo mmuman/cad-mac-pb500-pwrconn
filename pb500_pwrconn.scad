@@ -2,7 +2,13 @@
 //
 // François Revol, 2022-12-24
 
+/* [Variant] */
+
+variant = 1; // [0:Connector,1:USB-C adapter]
+
 /* [Options] */
+
+option_dc_symbol_hollow = false;
 
 // Print the inner contact block
 print_inner = true;
@@ -28,7 +34,7 @@ pb500_pwr_conn_pitch_fixup = 0.2;
 pb500_pwr_conn_outer_margin = 0.0;
 pb500_pwr_conn_contact_margin = 0.35;
 pb500_pwr_conn_key_margin = 0.1;
-pb500_pwr_conn_shell_margin = 0.2;
+pb500_pwr_conn_shell_margin = 0.3;
 
 /* [Debug] */
 
@@ -57,6 +63,44 @@ shield_type = 1; // [0: Original - anyone seen one?, 1: Cheap RCA plug]
 // we need more faces on such a small piece
 $fa=6;
 $fs=$preview?0.2:0.2;
+
+
+module usb_decoy(smaller=true, o=0) {
+    d = 2.5;
+    shell_th = 0.5;
+    conn_offset = smaller ? 1.5 : 1.3;
+    pcb_bbox = (smaller ? [9.1, 1, 15.1] : [10.6, 1.5, 16.2]) + o*[1,1,1];
+    // USB-C connector
+    color("silver") {
+        difference() {
+            union() {
+                hull() {
+                    for (dy = [-1,1], dx = [-1,1])
+                        translate([dx*(8.8-d)/2,dy*(3-d)/2,o ? -5 : 0]) cylinder(d=d+o, h=6.7+(o?5+o:0));
+                }
+                // ground pins
+                translate([0,-1,6.7-4.5/2]) cube([8.8+o, 1.5, 4.5+o], center=true);
+            }
+            if (o == 0) hull() {
+                for (dy = [-1,1], dx = [-1,1])
+                    translate([dx*(8.8-d)/2,dy*(3-d)/2,-1]) cylinder(d=d-shell_th, h=6.7);
+            }
+        }
+    }
+    //translate([0,0,6.7/2]) cube([8.8, 3.1, 6.7], center=true);
+    color("green") translate([0,-(3.1+pcb_bbox.y)/2,15.1/2+conn_offset]) cube(pcb_bbox, center=true);
+    // TODO: components
+    /* does not seem to work
+    difference() {
+        translate([-20,20-0.45]) import("USB-C_devoy_001.off");
+        if (smaller) difference() {
+            cube([25,20,10], center=true);
+            translate([3.55,0,2.5]) cube([16.5,9.1,4.2], center=true);
+        }
+    }
+    */
+}
+
 
 module dsub_contact_f(wire=0, margin = 0, c=0, cavity=false) {
     color(c?"gold":0) {
@@ -148,11 +192,14 @@ module pb500_pwr_conn_inner(preview=true) {
     if (preview) {
         for (pin = [0:3])
             translate(pin_xy(pin,pitch/2,pitch/2,height - contact_height - contact_z_offset))
-                dsub_contact_f(wire=8, c=wire_colors[pin]);
+                dsub_contact_f(wire= variant ? 4 : 8, c=wire_colors[pin]);
         // Cable
-        color("LightSlateGray", 0.9) {
+        if (variant == 0) color("LightSlateGray", 0.9) {
             translate([0,0,-34]) cylinder(d=4, h=29);
             translate([0,0,-7.5]) cylinder(d1=4, d2=6, h=2.5);
+        }
+        if (variant == 1) {
+            translate([0,0,-19.5]) usb_decoy();
         }
         if (filament_lock)
             translate([0,0,height - 1 - 9.4 - 0.4*1.75]) rotate([0,90,0]) color("green")
@@ -224,11 +271,11 @@ module pb500_pwr_conn_shield_official(preview=true, margin=0) {
 module pb500_pwr_conn_shield_rca(preview=true, margin=0) {
     thickness = 0.2;
     /*color(preview ? "Silver" : 0)*/ union() {
-        translate([0,0,pb500_pwr_conn_height-7.8-1.2]) {
+        translate([0,0,pb500_pwr_conn_height-7.8-2.0]) {
             difference() {
-                cylinder(d=10.1+2*margin, h=7.8);
-                translate([0,0,-0.1]) cylinder(d=10.1-2*thickness-2*margin, h=8);
-                translate([0,-5,5]) cube([3.5-2*margin,5,12], center=true);
+                cylinder(d=10.2+2*margin, h=7.8);
+                translate([0,0,-0.1]) cylinder(d=10.2-2*thickness-2*margin, h=8);
+                translate([0,-5,5]) cube([3.1-2*margin,5,12], center=true);
             }
         }
         translate([0,4.8-0.5,pb500_pwr_conn_height-7.8-1.2-7.8]) rotate([-4,0,0]) {
@@ -276,13 +323,17 @@ module pb500_pwr_conn_shell(preview=true) {
                                         translate([0,-3,49]) rotate([0,90,0]) cylinder(d=60+smooth, h=20, center=true);
                                         for (sx=[-1,1])
                                             translate([sx*14.3,0,6]) rotate([0,sx*3.5,0]) cube(15, center=true);
+                                        if (variant == 1) {
+                                            // Remove the whole cable clip so we can print bottom-up
+                                            translate([0,smooth-10.8,5]) cube([15,10,30], center=true);
+                                        }
                                     }
                                     // Cable clip
-                                    translate([0,-10,10]) intersection() {
+                                    if (variant == 0) translate([0,-10,10]) intersection() {
                                         translate([0,-1,0]) cylinder(d=8.1, h=11, center=true);
                                         translate([0,1,0]) rotate([0,90,0]) cylinder(d=11, h=10, center=true);
                                     }
-                                    translate([0,-10,10]) intersection() {
+                                    if (variant == 0) translate([0,-10,10]) intersection() {
                                         difference() {
                                             translate([0,3.5,avoid_supports?-0.6:0]) cube([8,avoid_supports?10.4:8,avoid_supports?17.8:16], center=true);
                                             for (sz=[-1,1]) {
@@ -298,14 +349,15 @@ module pb500_pwr_conn_shell(preview=true) {
                                 if (smooth || !$preview) sphere(smooth);
                             }
                             // Cable clip
-                            translate([0,-10,10]) {
+                            if (variant == 0) translate([0,-10,10]) {
                                 translate([0,-1,0]) cylinder(d=4.5, h=20, center=true);
                                 translate([0,-7,0]) rotate([0,0,45]) cube([8,8,10], center=true);
                             }
                             // DC symbol
-                            translate([0,7,12]) cube([8,2,0.5], center=true);
+                            dc_offset = option_dc_symbol_hollow ? [0,5,-1.5] : [0,7.5,0];
+                            translate([0,0,12]+dc_offset) cube([8,4,0.7], center=true);
                             for (sx=[-1,0,1])
-                                translate([sx*3,7,10.5]) cube([2,2,0.5], center=true);
+                                translate([sx*3,0,10.5]+dc_offset) cube([2,4,0.7], center=true);
                         }
                     }
                 }
@@ -313,16 +365,46 @@ module pb500_pwr_conn_shell(preview=true) {
                 // XXX: depends on the shield and inner lock
                 translate([0,0,5-0.1]) cylinder(d=10.1+shell_margin, h=6);
 
-                difference() {
+                rotate([0,0,-45*0]) difference() {
                     translate([0,0,1-0.1]) cylinder(d=10.1+0.1, h=11);
-                    translate([0,-9.3-shell_margin,2.4]) rotate([45,0,0]) cube([10,10,6], center=true);
+                    hull() for (dh=[0,1]) {
+                        translate([0,-9.3+0.2-shell_margin,2.4-0.3+dh]) rotate([45,0,0]) cube([10,10,6], center=true);
+                    }
                 }
                 translate([0,0,-1]) cylinder(d=7.5, h=5);
-                translate([0,3,-1]) cube([5.5,2.6,7], center=true);
-                translate([0,3,-1]) cube([4.0,3.4,7], center=true);
-                translate([0,0,-5]) cylinder(d1=10.1+0.2, d2=7, h=5);
-                translate([0,0,-17]) cylinder(d=10.1+0.2, h=12.1);
-                translate([0,0,-20]) cylinder(d=6+0.2, h=10);
+                // room for shield
+                intersection() {
+                    translate([0,3,-2]) cube([5.5,5,7], center=true);
+                    translate([0,0,-5]) cylinder(d=10.1+0.1, h=11);
+                }
+                difference() {
+                    union() {
+                        translate([0,0,-5]) cylinder(d1=10.1+0.2, d2=7, h=5);
+                        translate([0,0,-17]) cylinder(d=10.1+0.2, h=12.1);
+                    }
+                    if (variant == 1)
+                        translate([0,-5.1,-10]) cube([15,7,20], center=true);
+                }
+                if (variant == 0) {
+                    // hole for the cable
+                    translate([0,0,-20]) cylinder(d=6+0.2, h=10);
+                }
+
+                if (variant == 1) {
+                    // room for the decoy in-place
+                    translate([0,0,1.1-19.5]) usb_decoy(o=0.3);
+                    // room for decoy insertion
+                    translate([0,1,10-19.5]) usb_decoy(o=0.3);
+                    translate([0,1,13-19.5]) usb_decoy(o=0.3);
+                    translate([0,1,16-19.5]) usb_decoy(o=0.3);
+                    // avoid supports
+                    for (dx = [-1,1])
+                        translate([dx*1.5,-1.2,-3.2]) rotate([0,0,45]) cube(4.2);
+                    // Remove the whole cable clip so we can print bottom-up
+                    translate([0,-10.75,-5]) cube([15,10,30], center=true);
+                    translate([0,-5.5,-1]) rotate([90,90,0]) linear_extrude(0.8) text("15V 1.5A", size=3, valign="center");
+                }
+
                 if (debug && $preview) translate([0,0,-20]) rotate([0,0,-90]) cube(31);
             }
         }
@@ -332,6 +414,7 @@ module pb500_pwr_conn_shell(preview=true) {
 if (print_inner) pb500_pwr_conn_inner(preview?$preview:false);
 if (preview_shield && $preview) color("silver", 0.6) pb500_pwr_conn_shield($preview);
 if (print_shell)
-    translate($preview?[0,0,0]:[30,0,rotate_shell?6.65:20.2])
-        rotate($preview?[0,0,0]:[rotate_shell?-90:0,0,rotate_shell?-90:0])
+    translate($preview?[0,0,0]:[20,0,rotate_shell?(variant?5.75:6.65):20.2])
+        rotate($preview?[0,0,0]:[rotate_shell?(variant?90:-90):0,0,rotate_shell?-90:0])
             pb500_pwr_conn_shell($preview);
+//if ($preview) translate([10,0,0]) usb_decoy();

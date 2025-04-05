@@ -3,6 +3,11 @@
 // Copyright François Revol, 2022-2025
 // Licenced under CC-BY-NC-SA
 
+// WARNING: Do NOT power Vbatt (pin 1) without a current limiter circuit, it will overheat the battery!!!
+// cf.
+// https://tinkerdifferent.com/threads/powerbook-5xx-usb-c-pd-adapter.4243/post-36576
+// https://68kmla.org/bb/index.php?threads/powerbook-power-supply-connector-520-520c-540-540c.45148/post-558172
+
 /* [Variant] */
 
 variant = 1; // [0:Connector,1:USB-C adapter,2:USB-C adapter + charge - UNIMPLEMENTED,3:USB-C adapter + voltmeter,4:USB-C adapter + charge + voltmeter - UNIMPLEMENTED]

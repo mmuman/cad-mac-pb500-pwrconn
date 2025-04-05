@@ -72,6 +72,10 @@ avoid_supports_y = false;
 // The type of shield we'll be using
 shield_type = 1; // [0: Original - anyone seen one? - UNIMPLEMENTED, 1: Cheap RCA plug]
 
+// BROKEN
+option_angled = false;
+
+
 /* [Hidden] */
 
 //shield_margins = [0.4, 0.2];
@@ -237,15 +241,18 @@ module pb500_pwr_conn_inner(preview=true) {
             translate([0,0,-34]) cylinder(d=4, h=29);
             translate([0,0,-7.5]) cylinder(d1=4, d2=6, h=2.5);
         }
-        if (variant >= 1) {
-            translate([0,0,variant < 3 ? -19.5 : -27]) usb_decoy(smaller=option_usb_decoy_smaller);
-        }
-        if (variant >= 3) {
-            translate([10.55/2,4.8,3]) rotate([90, 90, 180]) meter_3(screw_holes=false);
-        }
         if (filament_lock)
             translate([0,0,height - 1 - 9.4 - 0.4*1.75]) rotate([0,90,0]) color("green")
                 cylinder(d=1.75, h=9.5, center=true);
+
+        translate([0,0,option_angled?-7:0]) rotate ([0,option_angled?-90:0,0]) {
+            if (variant >= 1) {
+                translate([0,0,variant < 3 ? -19.5 : -27]) usb_decoy(smaller=option_usb_decoy_smaller);
+            }
+            if (variant >= 3) {
+                translate([10.55/2,4.8,3]) rotate([90, 90, 180]) meter_3(screw_holes=false);
+            }
+        }
     }
 
     color("DimGray",0.7) difference() {
@@ -345,13 +352,13 @@ module pb500_pwr_conn_shield(preview=true, margin=0) {
 
 module pb500_pwr_conn_shell(preview=true) {
     shell_margin = pb500_pwr_conn_shell_margin;
-    shell_h = (variant < 3 ? 20.7 : 30);
+    shell_h = (variant < 3 ? 20.7 : 30) + (option_angled ? 5 : 0);
     color("LightSlateGray", 0.3) {
         translate([0,0,pb500_pwr_conn_height-1.8-5.4-10]) {
             difference() {
                 union() {
                     cylinder(d=11.6, h=10);
-                    translate([0,0,2-20.7]) {
+                    translate([0,0,option_angled?-5.5:0]) rotate ([0,option_angled?-90:0,0]) translate([0,0,2-20.7]) {
                         difference() {
                             minkowski() {
                                 union() {
@@ -363,7 +370,7 @@ module pb500_pwr_conn_shell(preview=true) {
                                                 translate([0,11.5/2,20.7-shell_h/2]) cube([14-smooth,11.5,shell_h],center=true);
                                             }
                                         }
-                                        translate([0,-3,49]) rotate([0,90,0]) cylinder(d=60+smooth, h=20, center=true);
+                                        translate(option_angled?[35,-5,20]:[0,-3,49]) rotate([0,option_angled?0:90,0]) cylinder(d=60+smooth, h=60, center=true);
                                         for (sx=[-1,1])
                                             translate([sx*14.3,0,variant < 3 ? 6 : -1.1]) rotate([0,sx*3.5,0]) cube([15,25,15], center=true);
                                         if (variant >= 1) {

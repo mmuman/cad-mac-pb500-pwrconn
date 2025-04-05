@@ -464,7 +464,7 @@ module pb500_pwr_conn_shell(preview=true) {
                             text("\U01F34E", font="ChicagoFLF,Symbola,Unifont Upper", valign="center", halign="center", size=5);
                 }
 
-                if (debug && $preview) translate([0,0,-20]) rotate([0,0,-90]) cube(31);
+                if (debug && $preview) translate([0,0,-30]) rotate([0,0,0]) cube(41);
             }
         }
     }

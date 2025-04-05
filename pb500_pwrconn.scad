@@ -447,7 +447,8 @@ module pb500_pwr_conn_shell(preview=true) {
                     // Remove the whole cable clip so we can print bottom-up
                     translate([0,-10.75,-5]) cube([15,10,50], center=true);
                     label_text = (variant % 2) ? "15V 1.5A" : "15V 2.5A";
-                    translate([0,-5.5,-1]) rotate([90,90,0]) linear_extrude(0.8) text(label_text, size=3, valign="center");
+                    translate([-2,-5.5,-1]) rotate([90,90,0]) linear_extrude(0.8) text(label_text, size=3, valign="center");
+                    translate([2.5,-5.5,-1]) rotate([90,90,0]) linear_extrude(0.8) text("PowerBook 5xx", size=2.5, valign="center");
                 }
                 if (option_apple_logo && (variant >= 3)) {
                     translate([0,7,-26.5])

@@ -1,6 +1,7 @@
 // DIY Power Connector for PowerBook 500 Series
 //
-// François Revol, 2022-2025
+// Copyright François Revol, 2022-2025
+// Licenced under CC-BY-NC-SA
 
 /* [Variant] */
 

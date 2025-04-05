@@ -46,7 +46,7 @@ filament_lock = false;
 
 contact_height = 15; //TODO: prefix dsub_
 pb500_pwr_conn_height = 16;
-pb500_pwr_conn_diam = 6.8;
+pb500_pwr_conn_diam = 6.9;
 pb500_pwr_conn_pitch = 2.7;
 pb500_pwr_conn_pitch_fixup = 0.2;
 pb500_pwr_conn_outer_margin = 0.0;

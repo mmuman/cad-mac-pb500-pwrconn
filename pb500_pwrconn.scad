@@ -445,7 +445,7 @@ module pb500_pwr_conn_shell(preview=true) {
                     for (dx = [-1,1])
                         translate([dx*1.5,-1.2,-3.2]) rotate([0,0,45]) cube(4.2);
                     // Remove the whole cable clip so we can print bottom-up
-                    translate([0,-10.75,-5]) cube([15,10,30], center=true);
+                    translate([0,-10.75,-5]) cube([15,10,50], center=true);
                     label_text = (variant % 2) ? "15V 1.5A" : "15V 2.5A";
                     translate([0,-5.5,-1]) rotate([90,90,0]) linear_extrude(0.8) text(label_text, size=3, valign="center");
                 }

@@ -18,6 +18,8 @@ option_usb_decoy_smaller = true;
 // a way to pop the inner out for servicing
 option_inner_removal_hole = true;
 
+option_apple_logo = true;
+
 // Print the inner contact block
 print_inner = true;
 
@@ -446,6 +448,11 @@ module pb500_pwr_conn_shell(preview=true) {
                     translate([0,-10.75,-5]) cube([15,10,30], center=true);
                     label_text = (variant % 2) ? "15V 1.5A" : "15V 2.5A";
                     translate([0,-5.5,-1]) rotate([90,90,0]) linear_extrude(0.8) text(label_text, size=3, valign="center");
+                }
+                if (option_apple_logo && (variant >= 3)) {
+                    translate([0,7,-26.5])
+                        rotate([0,180,0]) linear_extrude(height=0.5)
+                            text("\U01F34E", font="ChicagoFLF,Symbola,Unifont Upper", valign="center", halign="center", size=5);
                 }
 
                 if (debug && $preview) translate([0,0,-20]) rotate([0,0,-90]) cube(31);

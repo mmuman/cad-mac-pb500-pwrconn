@@ -14,16 +14,19 @@ variant = 1; // [0:Connector,1:USB-C adapter,2:USB-C adapter + charge - UNIMPLEM
 
 /* [Options] */
 
-// make DC symbol hollow to see the LED
+// Make DC symbol hollow to see the LED through (hot glue makes for a nice light-pipe)
 option_dc_symbol_hollow = false;
 
 // Use a smaller USB-C decoy board (the one where the connector shell pins are flush with the PCB border (required unless with voltmeter variants)
 option_usb_decoy_smaller = true;
 
-// a way to pop the inner out for servicing
+// Add a way to pop the inner out for servicing
 option_inner_removal_hole = true;
 
+// Needs the proper font installed (ChicagoFLF, Symbola or Unifont Upper)
 option_apple_logo = true;
+
+/* [Print options] */
 
 // Print the inner contact block
 print_inner = true;
@@ -67,7 +70,7 @@ avoid_supports = true;
 avoid_supports_y = false;
 
 // The type of shield we'll be using
-shield_type = 1; // [0: Original - anyone seen one?, 1: Cheap RCA plug]
+shield_type = 1; // [0: Original - anyone seen one? - UNIMPLEMENTED, 1: Cheap RCA plug]
 
 /* [Hidden] */
 

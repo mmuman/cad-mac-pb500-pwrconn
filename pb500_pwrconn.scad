@@ -52,7 +52,7 @@ pb500_pwr_conn_pitch_fixup = 0.2;
 pb500_pwr_conn_outer_margin = 0.0;
 pb500_pwr_conn_contact_margin = 0.35;
 pb500_pwr_conn_key_margin = 0.1;
-pb500_pwr_conn_shell_margin = 0.3;
+pb500_pwr_conn_shell_margin = 0.4;
 
 /* [Debug] */
 
@@ -110,15 +110,15 @@ module meter_3(segColor="Red", screw_holes=true, shorter=true) {
 module usb_decoy(smaller=true, o=0) {
     d = 2.5;
     shell_th = 0.5;
-    conn_offset = smaller ? 1.5 : 1.3;
-    pcb_bbox = (smaller ? [9.1, 1, 15.1] : [10.6, 1.5, 16.2]) + o*[1,5,1];
+    conn_offset = smaller ? 1.5 : 1.2;
+    pcb_bbox = (smaller ? [9.1, 1, 15.1] : [10.9, 1.5, 16.3]) + o*[1,5,1];
     // USB-C connector
     color("silver") {
         difference() {
             union() {
                 hull() {
                     for (dy = [-1,1], dx = [-1,1])
-                        translate([dx*(8.8-d)/2,dy*(3-d)/2,o ? -5 : 0]) cylinder(d=d+o, h=6.7+(o?10+o:0));
+                        translate([dx*(8.8-d)/2,dy*(3.1-d)/2,o ? -5 : 0]) cylinder(d=d+o*1.2, h=6.7+(o?10+o:0));
                 }
                 // ground pins
                 translate([0,-1,6.7-4.5/2]) cube([8.8+o, 1.5, 4.5+o], center=true);
@@ -250,7 +250,7 @@ module pb500_pwr_conn_inner(preview=true) {
                 translate([0,0,variant < 3 ? -19.5 : -27]) usb_decoy(smaller=option_usb_decoy_smaller);
             }
             if (variant >= 3) {
-                translate([10.55/2,4.8,3]) rotate([90, 90, 180]) meter_3(screw_holes=false);
+                translate([10.55/2,5.8,3]) rotate([90, 90, 180]) meter_3(screw_holes=false);
             }
         }
     }
@@ -357,17 +357,17 @@ module pb500_pwr_conn_shell(preview=true) {
         translate([0,0,pb500_pwr_conn_height-1.8-5.4-10]) {
             difference() {
                 union() {
-                    cylinder(d=11.6, h=10);
+                    cylinder(d=11.6+0.5, h=10);
                     translate([0,0,option_angled?-5.5:0]) rotate ([0,option_angled?-90:0,0]) translate([0,0,2-20.7]) {
                         difference() {
                             minkowski() {
                                 union() {
                                     difference() {
                                         intersection() {
-                                            translate(variant < 3 ? [0, -8,0] : [0, -1.7,-8]) cylinder(d=29-smooth, h=shell_h-smooth);
+                                            translate(variant < 3 ? [0, -8,0] : [0, -0.6,-8]) cylinder(d=29-smooth, h=shell_h-smooth);
                                             union() {
                                                 translate([0,0,20.7-shell_h]) cylinder(d=14-smooth, h=shell_h-smooth);
-                                                translate([0,11.5/2,20.7-shell_h/2]) cube([14-smooth,11.5,shell_h],center=true);
+                                                translate([0,12.5/2,20.7-shell_h/2]) cube([14-smooth,12.5,shell_h],center=true);
                                             }
                                         }
                                         translate(option_angled?[35,-5,20]:[0,-3,49]) rotate([0,option_angled?0:90,0]) cylinder(d=60+smooth, h=60, center=true);
@@ -412,7 +412,16 @@ module pb500_pwr_conn_shell(preview=true) {
                             }
                             // voltmeter
                             if (variant >= 3) {
-                                translate([0,20/2,6.5]) cube([10.55,20,22.6]+[1,1,1]*0.4, center=true);
+                                translate([0,20/2,6.5]) difference() {
+                                    union() {
+                                        cube([10.6,20,23.5]+[1,1,1]*0.4, center=true);
+                                        for (d=[0:3])
+                                            cube([10.7+d/10,4-d,24+d/2]+[1,1,1]*0.4, center=true);
+                                    }
+                                    // Some grip to hold onto the meter PCB
+                                    for (dx=[-1,1],dz=[-1,1])
+                                        translate([dx*(10.55/2+0.4),2,dz*8]) rotate([90,0,-dx*3]) cylinder(d=0.8, h=8);
+                                }
                             }
                         }
                     }
@@ -422,12 +431,15 @@ module pb500_pwr_conn_shell(preview=true) {
                 translate([0,0,5-0.1]) cylinder(d=10.1+shell_margin, h=6);
 
                 rotate([0,0,-45*0]) difference() {
-                    translate([0,0,1-0.1]) cylinder(d=10.1+0.1, h=11);
+                    translate([0,0,1-0.1]) cylinder(d=10.1+shell_margin-0.1, h=11);
+                    // inner lock
                     hull() for (dh=[0,1]) {
-                        translate([0,-9.3+0.2-shell_margin,2.4-0.3+dh]) rotate([45,0,0]) cube([10,10,6], center=true);
+                        translate([0,-9.4-shell_margin,2.4-0.3+dh]) rotate([45,0,0]) cube([10,10,6], center=true);
                     }
+                    for (a=[-1,1])
+                        rotate([0,0,a*45]) translate([0,(10.1+shell_margin+0.1)/2,0]) cylinder(d=0.6, h=5);
                 }
-                translate([0,0,-1-5]) cylinder(d=7.5, h=5*2);
+                translate([0,0,-1-10]) cylinder(d=7.5, h=5*3);
 
                 // a way to pop the inner out for servicing
                 if (option_inner_removal_hole)
@@ -440,7 +452,8 @@ module pb500_pwr_conn_shell(preview=true) {
                 difference() {
                     union() {
                         translate([0,0,-5]) cylinder(d1=10.1+0.2, d2=7, h=5);
-                        translate([0,0,-17]) cylinder(d=10.1+0.2, h=12.1);
+                        if (variant < 3)
+                            translate([0,0,-17]) cylinder(d=10.1+0.2, h=12.1);
                     }
                     if (variant >= 1)
                         translate([0,-5.1,-10]) cube([15,7,20], center=true);
@@ -452,18 +465,24 @@ module pb500_pwr_conn_shell(preview=true) {
 
                 if (variant >= 1) {
                     // room for the decoy in-place
-                    translate([0,0,1.1 + (variant < 3 ? -19.5 : -27)]) usb_decoy(smaller=option_usb_decoy_smaller,o=0.3);
+                    translate([0,0,1.1 + (variant < 3 ? -19.5 : -27)]) usb_decoy(smaller=option_usb_decoy_smaller,o=0.4);
                     // room for decoy insertion
-                    for (d = variant < 3 ? [10,13,16] : [/*10,13,16,6,0,-3,*/])
-                        translate([0,1,d+(variant < 3 ? -19.5 : -27)]) usb_decoy(smaller=option_usb_decoy_smaller,o=0.3);
+                    if (variant < 3) for (d = [10,13,16])
+                        translate([0,1,d-19.5]) usb_decoy(smaller=option_usb_decoy_smaller,o=0.4);
+                    else
+                        translate([0,1.8,-22]) rotate([-20,0,0]) usb_decoy(smaller=option_usb_decoy_smaller,o=0.1);
+                    // room for solder joints and wires under the PCB
+                    translate([0,-3,(variant < 3 ? -19.5 : -27)+15.5]) cube([9.5,3,4], center=true);
+
                     // avoid supports
                     for (dx = [-1,1])
                         translate([dx*1.5,-1.2,-3.2]) rotate([0,0,45]) cube(4.2);
                     // Remove the whole cable clip so we can print bottom-up
                     translate([0,-10.75,-5]) cube([15,10,50], center=true);
                     label_text = (variant % 2) ? "15V 1.5A" : "15V 2.5A";
-                    translate([-2,-5.5,-1]) rotate([90,90,0]) linear_extrude(0.8) text(label_text, size=3, valign="center");
-                    translate([2.5,-5.5,-1]) rotate([90,90,0]) linear_extrude(0.8) text("PowerBook 5xx", size=2.5, valign="center");
+                    translate([0,-5.3,0]) rotate([90,90,0]) linear_extrude(0.7) text(label_text, size=3.2, valign="center");
+                    // cute but too small, makes a lot of print errors
+                    //translate([2.5,-5.5,-1]) rotate([90,90,0]) linear_extrude(0.7) text("PowerBook 5xx", size=2.5, valign="center");
                 }
                 if (option_apple_logo && (variant >= 3)) {
                     translate([0,7,-26.5])

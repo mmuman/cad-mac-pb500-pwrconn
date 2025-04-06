@@ -416,7 +416,7 @@ module pb500_pwr_conn_shell(preview=true) {
                                     union() {
                                         cube([10.6,20,23.5]+[1,1,1]*0.4, center=true);
                                         for (d=[0:3])
-                                            cube([10.7+d/10,4-d,24+d/2]+[1,1,1]*0.4, center=true);
+                                            cube([10.7,4-d,24+d/2]+[1,1,1]*0.4, center=true);
                                     }
                                     // Some grip to hold onto the meter PCB
                                     for (dx=[-1,1],dz=[-1,1])
@@ -434,10 +434,10 @@ module pb500_pwr_conn_shell(preview=true) {
                     translate([0,0,1-0.1]) cylinder(d=10.1+shell_margin-0.1, h=11);
                     // inner lock
                     hull() for (dh=[0,1]) {
-                        translate([0,-9.4-shell_margin,2.4-0.3+dh]) rotate([45,0,0]) cube([10,10,6], center=true);
+                        translate([0,-9.3-shell_margin,2.4-0.3+dh]) rotate([45,0,0]) cube([10,10,6], center=true);
                     }
-                    for (a=[-1,1])
-                        rotate([0,0,a*45]) translate([0,(10.1+shell_margin+0.1)/2,0]) cylinder(d=0.6, h=5);
+                    for (a=[-2,-1,1,2])
+                        rotate([0,0,a*45]) translate([0,(10.1+shell_margin+0.1)/2,0]) cylinder(d=0.7, h=5);
                 }
                 translate([0,0,-1-10]) cylinder(d=7.5, h=5*3);
 

@@ -26,6 +26,9 @@ option_inner_removal_hole = true;
 // Which font to pick the Apple logo from. Needs the proper font installed
 option_apple_logo = 0; // [0: None, 1: San Francisco - the Real Deal on MacOS - UNTESTED, 2: Baskerville Old Face - on windows - UNTESTED, 3: Font Awesome 5 Brands - texlive-fonts-extra package on Debian, 4: ChicagoFLF - not exact, 5: GLYPHICONS Halflings - even less exact]
 
+// Text on the side - Requires ChicagoFLF / Chicago font.
+option_powerbook_text = true;
+
 /* [Print options] */
 
 // Print the inner contact block
@@ -502,6 +505,11 @@ module pb500_pwr_conn_shell(preview=true) {
                     translate([0,7,-26.5])
                         rotate([0,180,0]) linear_extrude(height=0.5)
                             apple_logo(option_apple_logo);
+                }
+                if (option_powerbook_text && (variant >= 3)) {
+                    translate([-6.6,9,-12.5])
+                        rotate([0,90+180,0]) linear_extrude(height=1)
+                            text("PowerBook", font="ChicagoFLF,Chicago", size=3.2, halign="center", valign="center");
                 }
 
                 if (debug && $preview) translate([0,0,-30]) rotate([0,0,0]) cube(41);

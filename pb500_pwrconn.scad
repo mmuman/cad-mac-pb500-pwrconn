@@ -23,8 +23,8 @@ option_usb_decoy_smaller = true;
 // Add a way to pop the inner out for servicing
 option_inner_removal_hole = true;
 
-// Needs the proper font installed (ChicagoFLF, Symbola or Unifont Upper)
-option_apple_logo = true;
+// Which font to pick the Apple logo from. Needs the proper font installed
+option_apple_logo = 0; // [0: None, 1: San Francisco - the Real Deal on MacOS - UNTESTED, 2: Baskerville Old Face - on windows - UNTESTED, 3: Font Awesome 5 Brands - texlive-fonts-extra package on Debian, 4: ChicagoFLF - not exact, 5: GLYPHICONS Halflings - even less exact]
 
 /* [Print options] */
 
@@ -85,6 +85,20 @@ option_angled = false;
 // we need more faces on such a small piece
 $fa=6;
 $fs=$preview?0.2:0.2;
+
+appl_logo = [
+    [/* none */],
+    ["\uF8FF", "San Francisco"], // FIXME: UNTESTED - The official one
+    ["\uF800", "Baskerville Old Face"], // FIXME: UNTESTED - on Windows
+    ["\uF179", "Font Awesome 5 Brands"], // Most accurate but not very smooth
+    ["\U01F34E", "ChicagoFLF"], // A bit too fat
+    ["\uF8FF", "GLYPHICONS Halflings"] // Another plain apple.
+];
+
+module apple_logo(which=1, size=5) {
+    text(appl_logo[which][0], font=appl_logo[which][1], valign="center", halign="center", size=size);
+}
+
 
 
 // TODO: use NopSCADlib's
@@ -487,7 +501,7 @@ module pb500_pwr_conn_shell(preview=true) {
                 if (option_apple_logo && (variant >= 3)) {
                     translate([0,7,-26.5])
                         rotate([0,180,0]) linear_extrude(height=0.5)
-                            text("\U01F34E", font="ChicagoFLF,Symbola,Unifont Upper", valign="center", halign="center", size=5);
+                            apple_logo(option_apple_logo);
                 }
 
                 if (debug && $preview) translate([0,0,-30]) rotate([0,0,0]) cube(41);
